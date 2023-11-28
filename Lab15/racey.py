@@ -33,6 +33,10 @@ gameIcon = pygame.image.load('racecar.png')
 
 pygame.display.set_icon(gameIcon)
 
+def obstacles_dodged(count):
+    font = pygame.font.SysFont(None, 25)
+    text = font.render("Dodged: " + str(count), True, black)
+    window.blit(text, (0, 0))
 
 # TODO: Write a function called obstacles_dodged that displays the score.
 
@@ -46,12 +50,29 @@ def text_objects(text, font):
     textSurface = font.render(text, True, black)
     return textSurface, textSurface.get_rect()
 
-
 def crash():
-    ####################################
     pygame.mixer.Sound.play(crash_sound)
     pygame.mixer.music.stop()
-    ####################################
+
+    crash_screen = True
+
+    while crash_screen:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+        window.fill(white)
+        largeText = pygame.font.SysFont("comicsansms", 75)
+        TextSurf, TextRect = text_objects("You Crashed", largeText)
+        TextRect.center = ((display_width / 2), (display_height / 4))
+        window.blit(TextSurf, TextRect)
+
+        button("Play Again", 150, 450, 100, 50, green, bright_green, game_loop)
+        button("Quit", 550, 450, 100, 50, red, bright_red, quitgame)
+
+        pygame.display.update()
+        clock.tick(15)
 
     # TODO: Make a crash screen that is VERY similar to the intro screen.
     # It should display a crash message and buttons for playing or quitting.
@@ -123,11 +144,10 @@ def game_loop():
     obstacle_startx = random.randrange(0, display_width)
     obstacle_starty = -600
     obstacle_speed = 4
-    # TODO (Optional): You may choose to have different obstacle speeds for each level.
     obstacle_width = 100
     obstacle_height = 100
 
-    # TODO: Make a variable to track the score (i.e., how many obstacles were dodged).
+    score = 0  # Initialize the score variable
 
     gameExit = False
 
@@ -144,8 +164,6 @@ def game_loop():
                 if event.key == pygame.K_RIGHT:
                     x_change = 5
 
-
-
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                     x_change = 0
@@ -155,23 +173,25 @@ def game_loop():
 
         obstacles(obstacle_startx, obstacle_starty, obstacle_width, obstacle_height, block_color)
 
-
-
         obstacle_starty += obstacle_speed
         car(car_x, car_y)
-        # TODO: Call the obstacles_dodged function with the correct argument.
+        
+        # Call the obstacles_dodged function with the correct argument
+        obstacles_dodged(score)
 
-
-        if car_x> display_width - car_width or car_x< 0: # if the car hits a wall it crashes.
+        if car_x > display_width - car_width or car_x < 0:
             crash()
 
         if obstacle_starty > display_height:
             obstacle_starty = 0 - obstacle_height
-            obstacle_startx = random.randrange(0,display_width)
+            obstacle_startx = random.randrange(0, display_width)
 
-            # TODO: Increment the score variable.
+            score += 1  # Increment the score variable
 
             obstacle_speed += 1
+
+        pygame.display.update()
+        clock.tick(60)
 
             # TODO (optional): Increment the obstacle speed at a faster rate for levels 2 and 3.
 
